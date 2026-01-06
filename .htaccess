@@ -1,0 +1,50 @@
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(), microphone=(self), camera=()"
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' blob: https://translate.google.com https://corsproxy.io; connect-src 'self' https://translate.google.com https://corsproxy.io https://wa.me; frame-src 'none'; object-src 'none'; base-uri 'self';"
+</IfModule>
+
+# HTTPS Enforcement
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Set Default Page
+DirectoryIndex home.html index.html index.php
+
+# Disable Directory Listing
+Options -Indexes
+
+# Prevent Access to Sensitive Files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protect Configuration Files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql|conf|config)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Set Default Charset
+AddDefaultCharset UTF-8
+
+# MIME Type Security
+<IfModule mod_mime.c>
+    AddType application/javascript js
+    AddType text/css css
+    AddType text/html html htm
+</IfModule>
+
+# Disable Server Signature
+ServerSignature Off
+
+# Limit Request Size (10MB)
+LimitRequestBody 10485760

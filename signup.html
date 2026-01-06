@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="png" href="assests/logo.png">
+  <title>Sign Up - Raket.H Clone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/signin.css" />
+</head>
+<body>
+  <div class="split-container">
+    <div class="left-section">
+      <div class="content-wrapper">
+        <div class="logo">
+          <div style="display:flex;align-items:center;gap:8px;font-size:22px;font-weight:bold;">
+            <img src="assests/logo.png" alt="Logo" style="width:32px;height:auto;">
+            Raket.H <span style="color:#ff4d4d;">Clone</span>
+          </div>
+        </div>
+        <div class="hero-content">
+          <h2>Get <span class="highlight">ready</span> for your business</h2>
+          <h2>& upgrade <span class="highlight">all aspects</span></h2>
+          <p class="description">
+            Raket.H Clone AI Voice Studio is provided for creating professional voice content. 
+            This platform is based on advanced AI technology. Anyone can use and create 
+            amazing voice content for any professional project.
+          </p>
+          <div class="cta-buttons">
+            <a href="index.html" class="btn-primary">Discover More</a>
+            <a href="contact.html" class="btn-secondary">Contact Us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <div class="form-wrapper">
+        <div class="form-header">
+          <h2>Create Account</h2>
+          <p>Sign up to start using AI Voice Studio</p>
+        </div>
+
+        <form id="signupForm">
+          <div class="form-group">
+            <input id="name" type="text" placeholder="Full Name" required />
+          </div>
+
+          <div class="form-group">
+            <input id="email" type="email" placeholder="Email Address" required />
+          </div>
+
+          <div class="form-group">
+            <div class="password-input-wrapper">
+              <input id="password" type="password" placeholder="Password" required />
+              <span class="password-toggle" onclick="togglePassword('password')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <button type="submit" class="signin-btn">Sign Up</button>
+          
+          <p id="signupErr" class="form-error"></p>
+        </form>
+
+        <div class="form-footer">
+          <p>Already have an account? <a href="signin.html">Sign in</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      
+      if (name && email && password) {
+        localStorage.setItem('voiceAppUser', JSON.stringify({email: email, name: name, initials: name.charAt(0).toUpperCase()}));
+        window.location.replace('index.html');
+      } else {
+        document.getElementById('signupErr').textContent = 'Please fill all fields.';
+        document.getElementById('signupErr').style.color = 'red';
+      }
+    });
+    
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const toggle = input.nextElementSibling;
+      const svg = toggle.querySelector('svg');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        svg.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+      } else {
+        input.type = 'password';
+        svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+      }
+    }
+  </script>
+</body>
+</html>

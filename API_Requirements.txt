@@ -1,0 +1,227 @@
+# RAKET.H CLONE - FLASK BACKEND API REQUIREMENTS
+
+## 1. USER AUTHENTICATION APIs
+
+### POST /api/auth/register
+- Purpose: User registration/signup
+- Frontend Files: signup.html, js/signin.js
+- Request Body: { name, email, password }
+- Response: { success, message, user_id }
+
+### POST /api/auth/login
+- Purpose: User login/signin
+- Frontend Files: signin.html, js/signin.js
+- Request Body: { email, password }
+- Response: { success, message, token, user_data }
+
+### POST /api/auth/logout
+- Purpose: User logout
+- Frontend Files: All pages with logout functionality
+- Headers: Authorization token
+- Response: { success, message }
+
+### GET /api/auth/verify-token
+- Purpose: Verify user token validity
+- Frontend Files: js/auth-check.js, dashboard.html
+- Headers: Authorization token
+- Response: { valid, user_data }
+
+## 2. ADMIN AUTHENTICATION APIs
+
+### POST /api/admin/login
+- Purpose: Admin login
+- Frontend Files: signin.html (admin flow), js/admin-auth.js
+- Request Body: { email, password }
+- Response: { success, message, admin_token }
+
+### GET /api/admin/verify
+- Purpose: Verify admin token
+- Frontend Files: admin-dashboard.html, js/admin-auth.js
+- Headers: Authorization token
+- Response: { valid, admin_data }
+
+## 3. VOICE GENERATION APIs
+
+### POST /api/voice/generate
+- Purpose: Generate voice from text
+- Frontend Files: dashboard.html, js/dashboard.js
+- Request Body: { 
+    text, 
+    language, 
+    voice_type (male/female/kids), 
+    voice_style,
+    user_id 
+}
+- Response: { success, audio_url, tokens_used, remaining_tokens }
+
+### GET /api/voice/languages
+- Purpose: Get available languages list
+- Frontend Files: dashboard.html (language dropdown)
+- Response: { languages: [{ code, name, flag }] }
+
+### GET /api/voice/styles
+- Purpose: Get available voice styles
+- Frontend Files: dashboard.html (voice style dropdown)
+- Response: { styles: [{ id, name, description }] }
+
+## 4. USER DASHBOARD APIs
+
+### GET /api/user/profile
+- Purpose: Get user profile data
+- Frontend Files: dashboard.html
+- Headers: Authorization token
+- Response: { user_data, subscription_info, tokens_remaining }
+
+### GET /api/user/voice-history
+- Purpose: Get user's voice generation history
+- Frontend Files: dashboard.html (sidebar history)
+- Headers: Authorization token
+- Response: { history: [{ id, title, tokens, date, status, audio_url }] }
+
+### POST /api/user/download-audio
+- Purpose: Download generated audio
+- Frontend Files: dashboard.html
+- Request Body: { audio_id }
+- Response: Audio file download
+
+## 5. SUBSCRIPTION MANAGEMENT APIs
+
+### GET /api/subscriptions/plans
+- Purpose: Get available subscription plans
+- Frontend Files: pricing.html
+- Response: { plans: [{ id, name, price, tokens, features }] }
+
+### POST /api/subscriptions/create
+- Purpose: Create new subscription
+- Frontend Files: add-subscription.html
+- Request Body: { email, plan_type, tokens, start_date, expiry_date }
+- Response: { success, subscription_id }
+
+### GET /api/subscriptions/user/{user_id}
+- Purpose: Get user subscription details
+- Frontend Files: dashboard.html
+- Response: { subscription_data, tokens_remaining, expiry_date }
+
+## 6. ADMIN DASHBOARD APIs
+
+### GET /api/admin/stats
+- Purpose: Get dashboard statistics
+- Frontend Files: admin-dashboard.html, js/admin-dashboard.js
+- Response: { 
+    low_plan_users, 
+    middle_plan_users, 
+    high_plan_users, 
+    enterprise_plan_users 
+}
+
+### GET /api/admin/users
+- Purpose: Get all subscription users
+- Frontend Files: subscription-users.html
+- Query Params: ?page=1&limit=50&status=active&plan=all
+- Response: { users: [{ id, email, plan, tokens, start_date, expiry_date, status }] }
+
+### PUT /api/admin/users/{user_id}
+- Purpose: Update user subscription
+- Frontend Files: subscription-users.html (edit modal)
+- Request Body: { email, plan, tokens, start_date, expiry_date, status }
+- Response: { success, message }
+
+### DELETE /api/admin/users/{user_id}
+- Purpose: Delete user subscription
+- Frontend Files: subscription-users.html
+- Response: { success, message }
+
+### GET /api/admin/recent-activity
+- Purpose: Get recent user activities
+- Frontend Files: admin-dashboard.html
+- Response: { activities: [{ user_email, action, timestamp }] }
+
+## 7. CONTACT & SUPPORT APIs
+
+### POST /api/contact/submit
+- Purpose: Submit contact form
+- Frontend Files: contact.html
+- Request Body: { name, email, subject, message }
+- Response: { success, message }
+
+## 8. TOKEN MANAGEMENT APIs
+
+### GET /api/tokens/usage/{user_id}
+- Purpose: Get user token usage
+- Frontend Files: dashboard.html
+- Response: { used_tokens, total_tokens, usage_percentage }
+
+### POST /api/tokens/consume
+- Purpose: Consume tokens for voice generation
+- Frontend Files: dashboard.html (when generating voice)
+- Request Body: { user_id, tokens_to_consume, action }
+- Response: { success, remaining_tokens }
+
+## 9. FILE MANAGEMENT APIs
+
+### POST /api/files/upload
+- Purpose: Upload audio files
+- Frontend Files: dashboard.html
+- Request Body: FormData with audio file
+- Response: { success, file_url, file_id }
+
+### GET /api/files/download/{file_id}
+- Purpose: Download audio files
+- Frontend Files: dashboard.html (download buttons)
+- Response: Audio file stream
+
+## 10. SEARCH & FILTER APIs
+
+### GET /api/admin/search-users
+- Purpose: Search and filter users
+- Frontend Files: subscription-users.html
+- Query Params: ?search=email&status=active&plan=middle
+- Response: { users: [...], total_count }
+
+## 11. DEMO & TESTING APIs
+
+### GET /api/demo/token-usage
+- Purpose: Demo token usage page
+- Frontend Files: demo-token-usage.html
+- Response: { demo_data }
+
+## ADDITIONAL REQUIREMENTS:
+
+### Authentication Middleware
+- JWT token validation
+- Role-based access (user/admin)
+- Session management
+
+### Database Models Needed:
+- Users (id, name, email, password_hash, created_at)
+- Subscriptions (id, user_id, plan_type, tokens, start_date, expiry_date, status)
+- VoiceGenerations (id, user_id, text, language, voice_type, audio_url, tokens_used, created_at)
+- AdminUsers (id, email, password_hash, role)
+
+### Error Handling:
+- 401 Unauthorized
+- 403 Forbidden  
+- 404 Not Found
+- 500 Internal Server Error
+- Custom error messages for frontend
+
+### CORS Configuration:
+- Allow frontend domain
+- Handle preflight requests
+- Set proper headers
+
+### File Storage:
+- Audio file storage (local/cloud)
+- File cleanup policies
+- Download URL generation
+
+Dummy Frontend Files Related to APIs:
+signin.js (admin login)
+
+signup.html (registration)
+
+dashboard.js (voice generation)
+
+admin-dashboard.js (stats)
+
+subscription-users.html (user data)

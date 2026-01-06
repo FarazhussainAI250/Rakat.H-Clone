@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Users - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/subscription-users.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle d-md-none" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0" id="sidebar">
+                <div class="p-4">
+                    <h4 class="text-center mb-4 admin-panel-title">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="admin-dashboard.html">
+                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                        </a>
+                        <a class="nav-link" href="add-subscription.html">
+                            <i class="fas fa-plus-circle me-2"></i> Add Subscription
+                        </a>
+                        <a class="nav-link active" href="subscription-users.html">
+                            <i class="fas fa-users me-2"></i> Subscription Users
+                        </a>
+                        <a class="nav-link" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content p-4">
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-users me-2"></i> Subscription Users</h2>
+                            <p class="mb-0">Manage all subscription users</p>
+                        </div>
+                        <a href="add-subscription.html" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add New
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Search and Filter -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control search-box" id="searchInput" placeholder="Search by email or plan...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select search-box" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select search-box" id="planFilter">
+                            <option value="">All Plans</option>
+                            <option value="Low Plan">Low Plan</option>
+                            <option value="Middle Plan">Middle Plan</option>
+                            <option value="High Plan">High Plan</option>
+                            <option value="Enterprise Plan">Enterprise Plan</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Users Table -->
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>User Email</th>
+                                    <th>Plan Type</th>
+                                    <th>Tokens Left</th>
+                                    <th>Start Date</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Dummy data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="emptyState" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No users found</h5>
+                    <p class="text-muted">Add your first subscription user to get started.</p>
+                    <a href="add-subscription.html" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Subscription
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Edit Subscription
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Password</label>
+                                <div class="password-input-wrapper" style="position: relative;">
+                                    <input type="password" class="form-control" id="editPassword" required>
+                                    <span class="password-toggle" onclick="togglePassword('editPassword')" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d;">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Plan</label>
+                                <select class="form-select" id="editPlan" required>
+                                    <option value="Low Plan">Low Plan</option>
+                                    <option value="Middle Plan">Middle Plan</option>
+                                    <option value="High Plan">High Plan</option>
+                                    <option value="Enterprise Plan">Enterprise Plan</option>
+                                </select>
+                            </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Tokens</label>
+                                <input type="number" class="form-control" id="editTokens" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="editStartDate" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Expiry Date</label>
+                                <input type="date" class="form-control" id="editExpiryDate" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="editStatus" required>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Dummy data
+        let subscriptions = [
+            {
+                id: 1,
+                email: 'john@example.com',
+                password: 'password123',
+                plan: 'Middle Plan',
+                tokens: 450,
+                startDate: '2025-01-01',
+                expiryDate: '2025-02-01',
+                status: 'Active'
+            },
+            {
+                id: 2,
+                email: 'sarah@example.com',
+                password: 'sarah456',
+                plan: 'High Plan',
+                tokens: 800,
+                startDate: '2025-01-05',
+                expiryDate: '2025-02-05',
+                status: 'Active'
+            },
+            {
+                id: 3,
+                email: 'mike@example.com',
+                password: 'mike789',
+                plan: 'Low Plan',
+                tokens: 0,
+                startDate: '2024-12-01',
+                expiryDate: '2025-01-01',
+                status: 'Expired'
+            },
+            {
+                id: 4,
+                email: 'emma@example.com',
+                password: 'emma321',
+                plan: 'Middle Plan',
+                tokens: 300,
+                startDate: '2025-01-10',
+                expiryDate: '2025-02-10',
+                status: 'Active'
+            },
+            {
+                id: 5,
+                email: 'david@example.com',
+                password: 'david654',
+                plan: 'Low Plan',
+                tokens: 75,
+                startDate: '2025-01-15',
+                expiryDate: '2025-02-15',
+                status: 'Active'
+            },
+            {
+                id: 6,
+                email: 'alex@example.com',
+                password: 'alex987',
+                plan: 'Enterprise Plan',
+                tokens: 1800,
+                startDate: '2025-01-20',
+                expiryDate: '2025-02-20',
+                status: 'Active'
+            }
+        ];
+        
+        // Load from localStorage if exists
+        const storedSubs = localStorage.getItem('subscriptions');
+        if (storedSubs) {
+            const parsedSubs = JSON.parse(storedSubs);
+            subscriptions = [...subscriptions, ...parsedSubs];
+        }
+        
+        function renderTable(data = subscriptions) {
+            const tbody = document.getElementById('usersTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            tbody.innerHTML = data.map(user => `
+                <tr>
+                    <td><strong>${user.email}</strong></td>
+                    <td>
+                        <span class="badge ${getPlanBadgeClass(user.plan)}">${user.plan}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${user.tokens > 0 ? 'bg-success' : 'bg-danger'}">
+                            ${user.tokens}
+                        </span>
+                    </td>
+                    <td>${formatDate(user.startDate)}</td>
+                    <td>${formatDate(user.expiryDate)}</td>
+                    <td>
+                        <span class="badge ${getStatusBadgeClass(user.status)}">${user.status}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm me-2" onclick="editUser(${user.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function getPlanBadgeClass(plan) {
+            switch(plan) {
+                case 'Low Plan': return 'bg-info';
+                case 'Middle Plan': return 'bg-warning';
+                case 'High Plan': return 'bg-success';
+                case 'Enterprise Plan': return 'bg-primary';
+                default: return 'bg-secondary';
+            }
+        }
+        
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Active': return 'bg-success';
+                case 'Inactive': return 'bg-secondary';
+                case 'Expired': return 'bg-danger';
+                default: return 'bg-secondary';
+            }
+        }
+        
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString();
+        }
+        
+        function editUser(id) {
+            const user = subscriptions.find(u => u.id === id);
+            if (!user) return;
+            
+            document.getElementById('editId').value = user.id;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editPassword').value = user.password || '';
+            document.getElementById('editPlan').value = user.plan;
+            document.getElementById('editTokens').value = user.tokens;
+            document.getElementById('editStartDate').value = user.startDate;
+            document.getElementById('editExpiryDate').value = user.expiryDate;
+            document.getElementById('editStatus').value = user.status;
+            
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+        
+        function saveEdit() {
+            const id = parseInt(document.getElementById('editId').value);
+            const userIndex = subscriptions.findIndex(u => u.id === id);
+            
+            if (userIndex !== -1) {
+                subscriptions[userIndex] = {
+                    ...subscriptions[userIndex],
+                    email: document.getElementById('editEmail').value,
+                    password: document.getElementById('editPassword').value,
+                    plan: document.getElementById('editPlan').value,
+                    tokens: parseInt(document.getElementById('editTokens').value),
+                    startDate: document.getElementById('editStartDate').value,
+                    expiryDate: document.getElementById('editExpiryDate').value,
+                    status: document.getElementById('editStatus').value
+                };
+                
+                localStorage.setItem('subscriptions', JSON.stringify(subscriptions.filter(s => s.createdAt)));
+                renderTable();
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                modal.hide();
+            }
+        }
+        
+        function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this subscription?')) {
+                subscriptions = subscriptions.filter(u => u.id !== id);
+                localStorage.setItem('subscriptions', JSON.stringify(subscriptions.filter(s => s.createdAt)));
+                renderTable();
+            }
+        }
+        
+        // Search and filter functionality
+        function filterData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const planFilter = document.getElementById('planFilter').value;
+            
+            let filtered = subscriptions.filter(user => {
+                const matchesSearch = user.email.toLowerCase().includes(searchTerm) || 
+                                    user.plan.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || user.status === statusFilter;
+                const matchesPlan = !planFilter || user.plan === planFilter;
+                
+                return matchesSearch && matchesStatus && matchesPlan;
+            });
+            
+            renderTable(filtered);
+        }
+        
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', filterData);
+        document.getElementById('statusFilter').addEventListener('change', filterData);
+        document.getElementById('planFilter').addEventListener('change', filterData);
+        
+        // Token consumption simulation
+        function simulateTokenConsumption() {
+            subscriptions.forEach(user => {
+                if (user.status === 'Active' && user.tokens > 0) {
+                    if (Math.random() < 0.1) { // 10% chance to consume token
+                        user.tokens--;
+                        if (user.tokens === 0) {
+                            user.status = 'Expired';
+                        }
+                    }
+                }
+            });
+            renderTable();
+        }
+        
+        // Initialize
+        renderTable();
+        
+        // Simulate token consumption every 10 seconds
+        setInterval(simulateTokenConsumption, 10000);
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('adminAuth');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Mobile sidebar functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+            
+            if (sidebar.classList.contains('show')) {
+                overlay.style.display = 'block';
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+            overlay.style.display = 'none';
+        }
+        
+        // Show mobile menu toggle on small screens
+        function checkScreenSize() {
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            if (window.innerWidth <= 768) {
+                toggle.style.display = 'block';
+            } else {
+                toggle.style.display = 'none';
+                closeSidebar();
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('load', checkScreenSize);
+        window.addEventListener('resize', checkScreenSize);
+        
+        // Password toggle function
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            const icon = toggle.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+    </script>
+</body>
+</html>

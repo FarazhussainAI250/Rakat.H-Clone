@@ -1,0 +1,228 @@
+# FRONTEND API INTEGRATION POINTS
+
+## 1. SIGNIN.HTML & JS/SIGNIN.JS
+### Current Status: DUMMY CODE - NEEDS API INTEGRATION
+
+**Location:** js/signin.js - Line ~15-25
+```javascript
+// CURRENT DUMMY CODE:
+if (email === 'admin@raketh.com' && password === 'admin123') {
+    // Admin login logic
+}
+
+// NEEDS API CALL:
+const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+});
+```
+
+## 2. SIGNUP.HTML
+### Current Status: DUMMY CODE - NEEDS API INTEGRATION
+
+**Location:** signup.html - Line ~180-190
+```javascript
+// CURRENT DUMMY CODE:
+window.location.replace('index.html');
+
+// NEEDS API CALL:
+const response = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password })
+});
+```
+
+## 3. DASHBOARD.HTML & JS/DASHBOARD.JS
+### Current Status: DUMMY FUNCTIONS - NEEDS API INTEGRATION
+
+**Location:** js/dashboard.js - generateVoice() function
+```javascript
+// CURRENT DUMMY CODE:
+alert('Voice generated successfully!');
+
+// NEEDS API CALL:
+const response = await fetch('/api/voice/generate', {
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ text, language, voice_type, voice_style })
+});
+```
+
+**Location:** js/dashboard.js - downloadMP3() function
+```javascript
+// CURRENT DUMMY CODE:
+alert('MP3 download started!');
+
+// NEEDS API CALL:
+window.open(`/api/files/download/${audioId}`, '_blank');
+```
+
+## 4. ADMIN-DASHBOARD.HTML & JS/ADMIN-DASHBOARD.JS
+### Current Status: DUMMY DATA - NEEDS API INTEGRATION
+
+**Location:** js/admin-dashboard.js - updateStats() function
+```javascript
+// CURRENT DUMMY CODE:
+const stats = {
+    low: Math.floor(Math.random() * 20) + 10,
+    // ...
+};
+
+// NEEDS API CALL:
+const response = await fetch('/api/admin/stats', {
+    headers: { 'Authorization': `Bearer ${adminToken}` }
+});
+const stats = await response.json();
+```
+
+## 5. SUBSCRIPTION-USERS.HTML
+### Current Status: DUMMY DATA - NEEDS API INTEGRATION
+
+**Location:** subscription-users.html - Line ~150-200
+```javascript
+// CURRENT DUMMY DATA:
+let subscriptions = [
+    { id: 1, email: 'john@example.com', ... }
+];
+
+// NEEDS API CALL:
+const response = await fetch('/api/admin/users');
+const subscriptions = await response.json();
+```
+
+**Location:** subscription-users.html - saveEdit() function
+```javascript
+// CURRENT DUMMY CODE:
+localStorage.setItem('subscriptions', JSON.stringify(...));
+
+// NEEDS API CALL:
+const response = await fetch(`/api/admin/users/${userId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedData)
+});
+```
+
+## 6. ADD-SUBSCRIPTION.HTML
+### Current Status: NO API CALLS - NEEDS COMPLETE INTEGRATION
+
+**Location:** add-subscription.html - Form submission
+```javascript
+// NEEDS API CALL:
+const response = await fetch('/api/subscriptions/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, plan, tokens, start_date, expiry_date })
+});
+```
+
+## 7. CONTACT.HTML
+### Current Status: NO API CALLS - NEEDS INTEGRATION
+
+**Location:** contact.html - Form submission
+```javascript
+// NEEDS API CALL:
+const response = await fetch('/api/contact/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, subject, message })
+});
+```
+
+## 8. JS/AUTH-CHECK.JS
+### Current Status: DUMMY CODE - NEEDS API INTEGRATION
+
+**Location:** js/auth-check.js - User authentication check
+```javascript
+// CURRENT DUMMY CODE:
+const user = localStorage.getItem('voiceAppUser');
+
+// NEEDS API CALL:
+const response = await fetch('/api/auth/verify-token', {
+    headers: { 'Authorization': `Bearer ${token}` }
+});
+```
+
+## 9. PRICING.HTML
+### Current Status: STATIC DATA - NEEDS API INTEGRATION
+
+**Location:** pricing.html - Plans data
+```javascript
+// NEEDS API CALL:
+const response = await fetch('/api/subscriptions/plans');
+const plans = await response.json();
+// Dynamically populate pricing cards
+```
+
+## 10. INDEX.HTML (HOME PAGE)
+### Current Status: STATIC - NEEDS USER DATA INTEGRATION
+
+**Location:** index.html - User authentication check
+```javascript
+// CURRENT CODE:
+const user = localStorage.getItem('voiceAppUser');
+
+// NEEDS API CALL:
+const response = await fetch('/api/user/profile', {
+    headers: { 'Authorization': `Bearer ${token}` }
+});
+```
+
+## FILES THAT NEED NEW API INTEGRATION:
+
+### 1. js/token-api.js
+- **Purpose:** Token management functions
+- **APIs Needed:** 
+  - `/api/tokens/usage/{user_id}`
+  - `/api/tokens/consume`
+
+### 2. js/scripts.js
+- **Purpose:** General utility functions
+- **APIs Needed:**
+  - `/api/voice/languages` (for language dropdown)
+  - `/api/voice/styles` (for voice styles)
+
+## AUTHENTICATION TOKEN MANAGEMENT:
+
+### Files that need token handling:
+1. **js/signin.js** - Store token after login
+2. **js/auth-check.js** - Verify token on page load
+3. **js/dashboard.js** - Include token in API calls
+4. **js/admin-dashboard.js** - Include admin token
+5. **All protected pages** - Token validation
+
+## ERROR HANDLING NEEDED:
+
+### Files that need error handling:
+1. **All API calling files** - Network errors, 401, 403, 500
+2. **User feedback** - Success/error messages
+3. **Redirect logic** - On authentication failure
+
+## FORM VALIDATION NEEDED:
+
+### Files that need validation:
+1. **signin.html** - Email/password validation
+2. **signup.html** - Registration form validation
+3. **contact.html** - Contact form validation
+4. **add-subscription.html** - Subscription form validation
+
+## LOADING STATES NEEDED:
+
+### Files that need loading indicators:
+1. **dashboard.html** - Voice generation loading
+2. **admin-dashboard.html** - Data loading states
+3. **subscription-users.html** - Table loading
+4. **All forms** - Submit button loading states
+
+## SUMMARY:
+- **10 files** need API integration
+- **25+ functions** need to be updated
+- **Authentication system** needs complete overhaul
+- **Error handling** needs to be added everywhere
+- **Loading states** need to be implemented
+- **Form validation** needs to be added
